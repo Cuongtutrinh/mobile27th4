@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabsNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import BeveragesScreen from '../screens/BeveragesScreen';
+import FilterScreen from '../screens/FilterScreen'; // Thêm FilterScreen
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -22,6 +23,7 @@ const ExploreStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="Explore" component={ExploreScreen} options={{ title: 'Find Products' }} />
     <Stack.Screen name="Beverages" component={BeveragesScreen} options={{ title: 'Beverages' }} />
+    <Stack.Screen name="FilterScreen" component={FilterScreen} options={{ title: 'Filters' }} /> 
   </Stack.Navigator>
 );
 
