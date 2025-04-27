@@ -6,7 +6,9 @@ import HomeScreen from '../screens/HomeScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import BeveragesScreen from '../screens/BeveragesScreen';
-import FilterScreen from '../screens/FilterScreen'; // Thêm FilterScreen
+import FilterScreen from '../screens/FilterScreen';
+import CartScreen from '../screens/CartScreen';
+import FavouriteScreen from '../screens/FavouriteScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -44,8 +46,8 @@ const AppNavigator = () => (
     >
       <Tab.Screen name="Shop" component={HomeStack} />
       <Tab.Screen name="Explore" component={ExploreStack} />
-      <Tab.Screen name="Cart" component={() => null} />
-      <Tab.Screen name="Favourite" component={() => null} />
+      <Tab.Screen name="Cart" component={CartScreen} options={{ title: 'My Cart' }} />
+      <Tab.Screen name="Favourite" component={FavouriteScreen} options={{ title: 'Favourite' }} />
       <Tab.Screen name="Account" component={() => null} />
     </Tab.Navigator>
   </NavigationContainer>

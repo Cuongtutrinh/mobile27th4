@@ -1,6 +1,6 @@
-// ExploreScreen.js
 import React, { useState } from 'react';
 import { View, Text, FlatList, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import products from '../data/data.js';
 
@@ -14,11 +14,51 @@ const categories = [
 ];
 
 const ExploreScreen = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState(''); // State để lưu từ khóa tìm kiếm
-  const [selectedFilters, setSelectedFilters] = useState({ category: [], brand: [] }); // State để lưu bộ lọc
-  const [showResults, setShowResults] = useState(false); // State để kiểm soát hiển thị kết quả tìm kiếm
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState({ category: [], brand: [] });
+  const [showResults, setShowResults] = useState(false);
 
-  // Hàm hiển thị danh mục
+  const addToCart = async (product) => {
+    try {
+      const storedCart = await AsyncStorage.getItem('cart');
+      let currentCart = storedCart ? JSON.parse(storedCart) : [];
+
+      // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+      const existingItem = currentCart.find(item => item.id === product.id);
+      if (existingItem) {
+        // Nếu sản phẩm đã có, tăng số lượng
+        currentCart = currentCart.map(item =>
+          item.id === product.id ? { ...item, quantity: (item.quantity || 1) + 1 } : item
+        );
+      } else {
+        // Nếu sản phẩm chưa có, thêm mới với quantity = 1
+        currentCart.push({ ...product, quantity: 1 });
+      }
+
+      // Lưu lại vào AsyncStorage
+      await AsyncStorage.setItem('cart', JSON.stringify(currentCart));
+      alert('Added to cart!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
+  const addToFavourites = async (product) => {
+    try {
+      const storedFavourites = await AsyncStorage.getItem('favourites');
+      const currentFavourites = storedFavourites ? JSON.parse(storedFavourites) : [];
+      if (!currentFavourites.some(item => item.id === product.id)) {
+        const updatedFavourites = [...currentFavourites, product];
+        await AsyncStorage.setItem('favourites', JSON.stringify(updatedFavourites));
+        alert('Added to favourites!');
+      } else {
+        alert('Already in favourites!');
+      }
+    } catch (error) {
+      console.error('Error adding to favourites:', error);
+    }
+  };
+
   const renderCategory = ({ item }) => (
     <TouchableOpacity
       style={styles.categoryCard}
@@ -29,25 +69,25 @@ const ExploreScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
-  // Hàm hiển thị sản phẩm
   const renderProduct = ({ item }) => (
     <View style={styles.productCard}>
       <Image source={item.image} style={styles.productImage} />
       <Text style={styles.productName}>{item.name}</Text>
       <Text style={styles.productDetails}>{item.weight}, Price</Text>
       <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={() => addToCart(item)}>
         <Ionicons name="add" size={20} color="#fff" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.favButton} onPress={() => addToFavourites(item)}>
+        <Ionicons name="heart-outline" size={20} color="#000" />
       </TouchableOpacity>
     </View>
   );
 
-  // Hàm xử lý tìm kiếm
   const handleSearch = () => {
     setShowResults(true);
   };
 
-  // Logic lọc sản phẩm
   const filteredProducts = products.filter(product => {
     const matchesSearch = searchQuery
       ? product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,7 +104,6 @@ const ExploreScreen = ({ navigation }) => {
     return matchesSearch && matchesCategory && matchesBrand;
   });
 
-  // Hàm áp dụng bộ lọc
   const applyFilters = (filters) => {
     setSelectedFilters(filters);
     setShowResults(true);
@@ -135,6 +174,7 @@ const styles = StyleSheet.create({
   productDetails: { fontSize: 12, color: '#888', marginTop: 4 },
   productPrice: { fontSize: 14, fontWeight: 'bold', color: '#000', marginTop: 4 },
   addButton: { backgroundColor: '#28a745', borderRadius: 50, padding: 8, position: 'absolute', bottom: 16, right: 16 },
+  favButton: { position: 'absolute', top: 16, right: 16 },
 });
 
 export default ExploreScreen;
